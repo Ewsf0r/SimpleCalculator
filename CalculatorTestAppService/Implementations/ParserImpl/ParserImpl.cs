@@ -9,6 +9,7 @@ namespace CalculatorTestAppService.Implementations.ParserImpl
   {
     public static ImmutableList<Operation> Parse(string expressionStr)
     {
+      expressionStr = expressionStr.Replace(",", ".");
       var isFirst = true;
       var resBuilder = ImmutableList.CreateBuilder<Operation>();
       var subStr = "";
@@ -17,7 +18,7 @@ namespace CalculatorTestAppService.Implementations.ParserImpl
 
       foreach (var c in expressionStr)
       {
-        if (Char.IsLetter(c) || (!Char.IsDigit(c) && !"+-/*".Contains(c)))
+        if (Char.IsLetter(c) || (!Char.IsDigit(c) && !"+-/*.".Contains(c)))
           throw new ArgumentException("Input string is incorrect");
         if (!Char.IsDigit(c) && "+-/*".Contains(c) && !(c == '-' && isFirst))
         {

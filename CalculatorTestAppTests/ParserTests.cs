@@ -58,11 +58,38 @@ namespace CalculatorTestAppTests
     }
 
     [Fact]
-    public void IncorrectInputSignTest()
+    public void IncorrectInputCommaPlacementTest()
     {
-      var testStr = "1,+2";
-      var actualResult = ParserImpl.TryParse(testStr, out _);
+      var testStr = "1,,+2";
+      var actualResult = ParserImpl.TryParse(testStr, out var opsResult);
       var expectedResult = false;
+      Assert.Equal(expectedResult, actualResult);
+    }
+
+    [Fact]
+    public void IncorrectInputMultipleSignsTest()
+    {
+      var testStr = "1*+2";
+      var actualResult = ParserImpl.TryParse(testStr, out var opsResult);
+      var expectedResult = false;
+      Assert.Equal(expectedResult, actualResult);
+    }
+
+    [Theory]
+    [InlineData(".")]
+    [InlineData(",")]
+    public void CorrectFloatingPointNumberWithCommaTest(string pointStr)
+    {
+      var testStr = $"1{pointStr}2+2";
+      var actualResult = ParserImpl.Parse(testStr);
+
+      var expectedResult = new[]
+      {
+        new Operation(
+          "+",
+          1.2,
+          2)
+      }.ToImmutableList();
       Assert.Equal(expectedResult, actualResult);
     }
   }
