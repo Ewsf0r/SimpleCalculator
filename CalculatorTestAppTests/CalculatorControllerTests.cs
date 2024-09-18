@@ -10,7 +10,7 @@ namespace CalculatorTestAppTests
   {
     public CalculatorControllerTests(ITestOutputHelper outputHelper)
     {
-      TestSubject = new CalculatorController(new ParserImpl(), new ExpressionOrganizerImpl(),
+       TestSubject = new CalculatorController(new ParserImpl(), new SolverImpl(),
         new CalculatorControllerTestLogger(outputHelper));
     }
     public CalculatorController TestSubject { get; set; }
@@ -40,6 +40,15 @@ namespace CalculatorTestAppTests
       Assert.Equal(expectedResult, actualResult);
     }
 
+    [Fact]
+    public void CorrectEveryOperationTest()
+    {
+      var testStr = "1*1-1/1";
+      var actualResult = TestSubject.Get(testStr);
+      var expectedResult = 0d;
+      Assert.Equal(expectedResult, actualResult);
+    }
+
     [Theory]
     [InlineData(100)]
     [InlineData(1_000)]
@@ -53,14 +62,9 @@ namespace CalculatorTestAppTests
         testStrBuilder.Append("*1-1/1+1");
       }
 
-      if (testLen > 1_000)
-        Assert.Throws(typeof(StackOverflowException), () => TestSubject.Get(testStrBuilder.ToString()));
-      else
-      {
-        var actualResult = TestSubject.Get(testStrBuilder.ToString());
-        var expectedResult = 1d;
-        Assert.Equal(expectedResult, actualResult);
-      }
+      var actualResult = TestSubject.Get(testStrBuilder.ToString());
+      var expectedResult = 1d;
+      Assert.Equal(expectedResult, actualResult);
     }
   }
 }

@@ -13,8 +13,7 @@ namespace CalculatorTestAppService.Implementations.ParserImpl
       var resBuilder = ImmutableList.CreateBuilder<Operation>();
       var subStr = "";
 
-      double operandD;
-      Operation operandOp;
+      double operand;
 
       foreach (var c in expressionStr)
       {
@@ -22,12 +21,11 @@ namespace CalculatorTestAppService.Implementations.ParserImpl
           throw new ArgumentException("Input string is incorrect");
         if (!Char.IsDigit(c) && "+-/*".Contains(c) && !(c == '-' && isFirst))
         {
-          if (!Double.TryParse(subStr, CultureInfo.InvariantCulture, out operandD))
+          if (!Double.TryParse(subStr, CultureInfo.InvariantCulture, out operand))
             throw new ArgumentException("Can't parse one of the operands");
-          operandOp = OperationExtensions.FromResult(operandD);
           if (resBuilder.Count != 0)
-            resBuilder[^1] = resBuilder[^1].WithRight(operandOp);
-          resBuilder.Add(new Operation(c.ToString(), operandOp));
+            resBuilder[^1] = resBuilder[^1].WithRight(operand);
+          resBuilder.Add(new Operation(c.ToString(), operand));
           subStr = "";
           continue;
         }
@@ -36,10 +34,9 @@ namespace CalculatorTestAppService.Implementations.ParserImpl
         isFirst = false;
       }
 
-      if (!Double.TryParse(subStr, CultureInfo.InvariantCulture, out operandD))
+      if (!Double.TryParse(subStr, CultureInfo.InvariantCulture, out operand))
         throw new ArgumentException("Can't parse one of the operands");
-      operandOp = OperationExtensions.FromResult(operandD);
-      resBuilder[^1] = resBuilder[^1].WithRight(operandOp);
+      resBuilder[^1] = resBuilder[^1].WithRight(operand);
 
       return resBuilder.ToImmutable();
     }

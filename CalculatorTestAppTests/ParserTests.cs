@@ -15,8 +15,8 @@ namespace CalculatorTestAppTests
       {
         new Operation(
           "+",
-          OperationExtensions.FromResult(1),
-          OperationExtensions.FromResult(2))
+          1,
+          2)
       }.ToImmutableList();
       Assert.Equal(expectedResult, actualResult);
     }
@@ -29,12 +29,12 @@ namespace CalculatorTestAppTests
       {
         new Operation(
           "-",
-          OperationExtensions.FromResult(-1),
-          OperationExtensions.FromResult(2)),
+          -1,
+          2),
         new Operation(
           "-",
-          OperationExtensions.FromResult(2),
-          OperationExtensions.FromResult(3))
+          2,
+          3)
       }.ToImmutableList();
       Assert.Equal(expectedResult, actualResult);
     }

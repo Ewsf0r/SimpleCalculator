@@ -12,7 +12,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IParser, ParserImpl>();
-builder.Services.AddScoped<IExpressionOrganizer, ExpressionOrganizerImpl>();
+builder.Services.AddScoped<ISolver, SolverImpl>();
 
 var app = builder.Build();
 
