@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CalculatorTestAppService.Controllers;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
 
 namespace CalculatorTestAppTests
 {
-  public class CalculatorControllerTestLogger: ILogger<CalculatorController>
+  public class TestLogger<T>: ILogger<T>
   {
     private readonly ITestOutputHelper _outputHelper;
-    public CalculatorControllerTestLogger(ITestOutputHelper outputHelper)
+    public TestLogger(ITestOutputHelper outputHelper)
     {
       _outputHelper = outputHelper;
     }

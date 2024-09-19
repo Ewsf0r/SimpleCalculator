@@ -10,8 +10,11 @@ namespace CalculatorTestAppTests
   {
     public CalculatorControllerTests(ITestOutputHelper outputHelper)
     {
-       TestSubject = new CalculatorController(new ParserImpl(), new SolverImpl(),
-        new CalculatorControllerTestLogger(outputHelper));
+      var logger = new TestLogger<CalculatorController>(outputHelper);
+       TestSubject = new CalculatorController(
+         new ParserImpl(),
+         new SolverImpl(logger),
+         logger);
     }
     public CalculatorController TestSubject { get; set; }
     [Fact]
@@ -65,6 +68,51 @@ namespace CalculatorTestAppTests
       var actualResult = TestSubject.Get(testStrBuilder.ToString());
       var expectedResult = 1d;
       Assert.Equal(expectedResult, actualResult);
+    }
+
+    [Fact]
+    public void CorrectBasicBracketsAtEndTest()
+    {
+      var testStr = "3*(2+3)";
+      var actualResult = TestSubject.Get(testStr);
+      var expectedResult = 15;
+      Assert.Equal(expectedResult, actualResult);
+    }
+
+    [Fact]
+    public void CorrectBasicBracketsAtBeginningTest()
+    {
+      var testStr = "(2+3)*3";
+      var actualResult = TestSubject.Get(testStr);
+      var expectedResult = 15;
+      Assert.Equal(expectedResult, actualResult);
+    }
+
+    [Fact]
+    public void Correct2LayersOfBracketsAtBeginningTest()
+    {
+      var testStr = "((1+2)*(3+4))+5";
+      var actualResult = TestSubject.Get(testStr);
+      var expectedResult = 26;
+      Assert.Equal(expectedResult, actualResult);
+    }
+
+    [Fact]
+    public void Correct2LayersOfBracketsAtEndTest()
+    {
+      var testStr = "5+((1+2)*(3+4))";
+      var actualResult = TestSubject.Get(testStr);
+      var expectedResult = 26;
+      Assert.Equal(expectedResult, actualResult);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("()")]
+    public void IncorrectEmptyTest(string testStr)
+    {
+      var actualResult = TestSubject.Get(testStr);
+      Assert.True(double.IsNaN(actualResult));
     }
   }
 }

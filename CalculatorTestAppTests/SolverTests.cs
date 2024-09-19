@@ -1,10 +1,18 @@
 using CalculatorTestAppService.Data;
 using CalculatorTestAppService.Implementations.ExpressionOrganizerImpl;
+using Xunit.Abstractions;
 
 namespace CalculatorTestAppTests
 {
   public class SolverTests
   {
+    public SolverTests(ITestOutputHelper outputHelper)
+    {
+      var logger = new TestLogger<SolverImpl>(outputHelper);
+      TestSubject = new SolverImpl(logger);
+    }
+    public SolverImpl TestSubject { get; set; }
+
     [Fact]
     public void CorrectBasicTest()
     {
@@ -13,7 +21,7 @@ namespace CalculatorTestAppTests
         1,
         2);
       var testOps = new[] { testOp };
-      var actualResult = SolverImpl.Solve(testOps);
+      var actualResult = TestSubject.Solve(testOps);
       var expectedResult = 3;
       Assert.Equal(expectedResult, actualResult);
     }
@@ -43,7 +51,7 @@ namespace CalculatorTestAppTests
         multiplication2Op,
         addition2Op
       };
-      var actualResult = SolverImpl.Solve(testOps);
+      var actualResult = TestSubject.Solve(testOps);
       var expectedResult = 30;
       Assert.Equal(expectedResult, actualResult);
     }

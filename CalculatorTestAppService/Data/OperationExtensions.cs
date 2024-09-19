@@ -6,6 +6,9 @@
     public static Operation WithLeft(this Operation thisOp, double leftOp) => thisOp with { LeftOp = leftOp };
     public static bool IsMultiplicative(this Operation thisOp) => thisOp.OpKey == "*" || thisOp.OpKey == "/";
     public static bool IsAdditive(this Operation thisOp) => thisOp.OpKey == "+" || thisOp.OpKey == "-";
+    public static bool IsBracket(this Operation thisOp) => thisOp.OpKey == "(" || thisOp.OpKey == ")";
+    public static bool IsOpenBracket(this Operation thisOp) => thisOp.OpKey == "(";
+    public static bool IsCloseBracket(this Operation thisOp) => thisOp.OpKey == ")";
 
     public static double GetResult(this Operation thisOp)
     {

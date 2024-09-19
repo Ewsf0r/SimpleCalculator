@@ -1,4 +1,3 @@
-using CalculatorTestAppService.Data;
 using CalculatorTestAppService.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,10 +26,9 @@ namespace CalculatorTestAppService.Controllers
     {
       _logger.Log(LogLevel.Information, "Parsing");
       if (!_parser.TryParse(expressionStr, out var opsList)) return double.NaN;
-      _logger.Log(LogLevel.Information, "Organizing");
-      if (!p_solver.TrySolve(opsList!, out var result)) return double.NaN;
       _logger.Log(LogLevel.Information, "Calculating");
-      return result?? double.NaN;
+      if (!p_solver.TrySolve(opsList!, out var result)) return double.NaN;
+      return result ?? double.NaN;
     }
   }
 }

@@ -5,63 +5,97 @@ namespace CalculatorTestAppService.Implementations.ExpressionOrganizerImpl
 {
   public class SolverImpl: ISolver
   {
-    public static double Solve(IEnumerable<Operation> ops)
+    private readonly ILogger _logger;
+
+    public SolverImpl(ILogger logger)
+    {
+      _logger = logger;
+    }
+    public double Solve(IEnumerable<Operation> ops)
     {
       var opsArr = ops.ToArray();
-      var multiplicationList = new List<Operation>();
-      var additionList = new List<Operation>();
-      var subOp = double.NaN;
-
-      for (var i = 0; i < opsArr.Length; i++)
+      if(opsArr.Length == 1)
+        return opsArr[0].GetResult();
+      var opsLayersList = new List<List<Operation>>{new()};
+      var currentLayer = 0;
+      for (var i = 0; i < opsArr.Length - 1; i++)
       {
-        var operation = opsArr[i];
-        if (operation.IsMultiplicative())
-        {
-          multiplicationList.Add(operation);
-          if (i != opsArr.Length - 1 && opsArr[i + 1].IsMultiplicative()) continue;
-          var multiplicationOp = SolveSubroutine(multiplicationList);
-          if (additionList.Count == 0)
-          {
-            subOp = multiplicationOp;
-            continue;
-          }
+        var isLastRound = i == opsArr.Length - 2;
+        var currentOp = opsArr[i];
+        var nextOp = opsArr[i + 1];
+        if(!currentOp.IsBracket())
+          opsLayersList[currentLayer].Add(currentOp);
 
-          additionList[^1] = additionList[^1].WithRight(multiplicationOp);
-          multiplicationList = new List<Operation>();
-        }
-        else
+        if ((currentOp.IsAdditive() && nextOp.IsMultiplicative()) || currentOp.IsOpenBracket())
         {
-          if (!double.IsNaN(subOp))
-          {
-            operation = operation.WithLeft(subOp);
-            subOp = double.NaN;
-          }
-          additionList.Add(operation);
+          opsLayersList.Add(new List<Operation>());
+          currentLayer++;
         }
+        else if ((currentOp.IsMultiplicative() && nextOp.IsAdditive()) || currentOp.IsCloseBracket())
+        {
+          var subroutineResult = SolveSubroutine(opsLayersList[currentLayer]);
+
+          if (currentLayer > 0)
+          {
+            currentLayer--;
+            opsLayersList.RemoveAt(opsLayersList.Count - 1);
+            if (opsLayersList[currentLayer].Count > 0)
+              opsLayersList[currentLayer][^1] = opsLayersList[currentLayer][^1].WithRight(subroutineResult);
+            else
+            {
+              var nextNonBracketOpIndex = FindNextNonBracketOpIndex(opsArr, i);
+              if(nextNonBracketOpIndex == -1) break;
+              opsArr[nextNonBracketOpIndex] = opsArr[nextNonBracketOpIndex].WithLeft(subroutineResult);
+            }
+          }
+          else
+            opsArr[i + 1] = opsArr[i + 1].WithLeft(subroutineResult);
+        }
+        if (isLastRound && !nextOp.IsCloseBracket())
+          opsLayersList[currentLayer].Add(opsArr[^1]);
       }
 
-      if (!double.IsNaN(subOp)) return subOp;
-      var result = SolveSubroutine(additionList);
+      double result;
+      if (currentLayer > 0)
+      {
+        for (var i = currentLayer; i > 0 ;)
+        {
+          result = SolveSubroutine(opsLayersList[i]);
+          i--;
+          opsLayersList[i][^1] = opsLayersList[i][^1].WithRight(result);
+        }
+      }
+      result = SolveSubroutine(opsLayersList[0]);
       return result;
     }
 
     private static double SolveSubroutine(List<Operation> ops)
     {
-      var result = ops[^1].GetResult();
+      if (ops.Count == 1)
+        return ops[0].GetResult();
 
       for (var i = 0; i < ops.Count - 1; i++)
       {
         var currOp = ops[i];
+        if(currOp.IsBracket())
+          continue;
         var nextOp = ops[i + 1];
         nextOp = nextOp.WithLeft(currOp.GetResult());
         ops[i + 1] = nextOp;
-        result = nextOp.GetResult();
       }
 
+      var result = ops[^1].GetResult();
       return result;
     }
 
-    public static bool TrySolve(IEnumerable<Operation> ops, out double? result)
+    private static int FindNextNonBracketOpIndex(Operation[] ops, int currentIndex)
+    {
+      for (var i = currentIndex + 1; i < ops.Length; i++)
+        if (!ops[i].IsBracket()) return i;
+      return -1;
+    }
+
+    public bool TrySolve(IEnumerable<Operation> ops, out double? result)
     {
 
       try
@@ -75,8 +109,5 @@ namespace CalculatorTestAppService.Implementations.ExpressionOrganizerImpl
         return false;
       }
     }
-
-    double ISolver.Solve(IEnumerable<Operation> ops) => Solve(ops);
-    bool ISolver.TrySolve(IEnumerable<Operation> ops, out double? result) => TrySolve(ops, out result);
   }
 }
