@@ -1,11 +1,23 @@
-﻿using CalculatorTestAppService.Data;
+﻿using CalculatorTestAppService.Interfaces.Operation;
 
 namespace CalculatorTestAppService.Interfaces
 {
-  public interface ISolver
+    public interface ISolver
   {
-    double Solve(IEnumerable<Operation> ops);
+    double Solve(IEnumerable<IOperation> ops);
 
-    bool TrySolve(IEnumerable<Operation> ops, out double? result);
+    bool TrySolve(IEnumerable<IOperation> ops, out double? result)
+    {
+      try
+      {
+        result = Solve(ops);
+        return true;
+      }
+      catch
+      {
+        result = null;
+        return false;
+      }
+    }
   }
 }

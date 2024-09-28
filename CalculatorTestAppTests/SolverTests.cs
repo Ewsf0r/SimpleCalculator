@@ -1,58 +1,60 @@
-using CalculatorTestAppService.Data;
-using CalculatorTestAppService.Implementations.ExpressionOrganizerImpl;
-using Xunit.Abstractions;
+using CalculatorTestAppService.Implementations.Operations;
+using CalculatorTestAppService.Implementations.Solver;
+using CalculatorTestAppService.Interfaces;
+using CalculatorTestAppService.Interfaces.Operation;
 
 namespace CalculatorTestAppTests
 {
   public class SolverTests
   {
-    public SolverTests(ITestOutputHelper outputHelper)
-    {
-      var logger = new TestLogger<SolverImpl>(outputHelper);
-      TestSubject = new SolverImpl(logger);
-    }
-    public SolverImpl TestSubject { get; set; }
+    public SolverImpl TestSubject { get; set; } = new();
 
     [Fact]
     public void CorrectBasicTest()
     {
-      var testOp = new Operation(
-        "+",
-        1,
-        2);
+      var testOp = new AdditionOp(1, 2);
       var testOps = new[] { testOp };
       var actualResult = TestSubject.Solve(testOps);
       var expectedResult = 3;
       Assert.Equal(expectedResult, actualResult);
     }
+
     [Fact]
     public void CorrectMultiplicationAndAdditionBasicTest()
     {
-      var addition1Op = new Operation(
-        "+",
-        1,
-        2);
-      var multiplication1Op = new Operation(
-        "*",
-        2,
-        3);
-      var multiplication2Op = new Operation(
-        "*",
-        3,
-        4);
-      var addition2Op = new Operation(
-        "+",
-        4,
-        5);
-      var testOps = new[]
+      var testOps = new IOperation[]
       {
-        addition1Op,
-        multiplication1Op,
-        multiplication2Op,
-        addition2Op
+        new AdditionOp(1, 2),
+        new MultiplicationOp(2, 3),
+        new MultiplicationOp(3, 4),
+        new AdditionOp(4, 5)
       };
       var actualResult = TestSubject.Solve(testOps);
       var expectedResult = 30;
+      Assert.Equal(expectedResult, actualResult);
+    }
+
+    [Fact]
+    public void IncorrectBasicTest()
+    {
+      var testOp = new AdditionOp(1, null);
+      var testOps = new[] { testOp };
+      var actualResult = ((ISolver)TestSubject).TrySolve(testOps, out _);
+      Assert.False(actualResult);
+    }
+
+    [Fact]
+    public void BorderOperationOrderCheckTest()
+    {
+      var testOps = new IOperation[]
+      {
+        new MultiplicationOp(2, 2),
+        new MultiplicationOp(2, 2),
+        new MultiplicationOp(2, 2),
+        new SubtractionOp(2, 1)
+      };
+      var actualResult = TestSubject.Solve(testOps);
+      var expectedResult = 15;
       Assert.Equal(expectedResult, actualResult);
     }
   }

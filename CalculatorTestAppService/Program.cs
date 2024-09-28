@@ -1,5 +1,5 @@
-using CalculatorTestAppService.Implementations.ExpressionOrganizerImpl;
-using CalculatorTestAppService.Implementations.ParserImpl;
+using CalculatorTestAppService.Implementations.Parser;
+using CalculatorTestAppService.Implementations.Solver;
 using CalculatorTestAppService.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);

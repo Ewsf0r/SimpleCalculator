@@ -1,4 +1,5 @@
-using CalculatorTestAppService.Data;
+using CalculatorTestAppService.Implementations.Operations;
+using CalculatorTestAppService.Implementations.Parser;
 
 namespace CalculatorTestAppTests
 {
@@ -7,18 +8,20 @@ namespace CalculatorTestAppTests
     [Fact]
     public void DivisionByZeroThrowsTest()
     {
-      var testOp = new Operation(
-        "/",
+      var testOp = new DivisionOp(
         1,
         0);
-      Assert.Throws(typeof(ArgumentException), () => testOp.GetResult());
+      var actualResult = testOp.GetResult();
+      Assert.True(double.IsInfinity(actualResult));
     }
 
     [Fact]
-    public void EmptyOperationCalculationThrowsTest()
+    public void AdditionParsingBasicTest()
     {
-      var testOp = new Operation();
-      Assert.Throws(typeof(InvalidOperationException), () => testOp.GetResult());
+      var op = new AdditionOp();
+      var actualResult = op.Parse("1+2", 1);
+      var expectedResult = new AdditionOp(1, 2);
+      Assert.Equal(expectedResult, actualResult);
     }
   }
 }

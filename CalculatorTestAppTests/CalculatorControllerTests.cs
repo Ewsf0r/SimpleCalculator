@@ -1,7 +1,7 @@
 using System.Text;
 using CalculatorTestAppService.Controllers;
-using CalculatorTestAppService.Implementations.ExpressionOrganizerImpl;
-using CalculatorTestAppService.Implementations.ParserImpl;
+using CalculatorTestAppService.Implementations.Parser;
+using CalculatorTestAppService.Implementations.Solver;
 using Xunit.Abstractions;
 
 namespace CalculatorTestAppTests
@@ -13,7 +13,7 @@ namespace CalculatorTestAppTests
       var logger = new TestLogger<CalculatorController>(outputHelper);
        TestSubject = new CalculatorController(
          new ParserImpl(),
-         new SolverImpl(logger),
+         new SolverImpl(),
          logger);
     }
     public CalculatorController TestSubject { get; set; }
@@ -110,6 +110,33 @@ namespace CalculatorTestAppTests
     [InlineData("")]
     [InlineData("()")]
     public void IncorrectEmptyTest(string testStr)
+    {
+      var actualResult = TestSubject.Get(testStr);
+      Assert.True(double.IsNaN(actualResult));
+    }
+
+    [Fact]
+    public void BorderOperationOrderTest()
+    {
+      var testStr = "2*2*2*2-1";
+      var actualResult = TestSubject.Get(testStr);
+      var expectedResult = 15;
+      Assert.Equal(expectedResult, actualResult);
+    }
+
+    [Fact]
+    public void FloatingPointTest()
+    {
+      var testStr = "2.1+1.2";
+      var actualResult = TestSubject.Get(testStr);
+      var expectedResult = 3.3d;
+      Assert.Equal(expectedResult, actualResult);
+    }
+
+    [Theory]
+    [InlineData("+1")]
+    [InlineData("1+")]
+    public void IncorrectInputTest(string testStr)
     {
       var actualResult = TestSubject.Get(testStr);
       Assert.True(double.IsNaN(actualResult));
