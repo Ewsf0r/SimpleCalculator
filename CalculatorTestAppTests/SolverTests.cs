@@ -44,7 +44,7 @@ namespace CalculatorTestAppTests
     }
 
     [Fact]
-    public void BorderOperationOrderCheckTest()
+    public void BorderOperationOrderTest()
     {
       var testOps = new IOperation[]
       {
@@ -55,6 +55,18 @@ namespace CalculatorTestAppTests
       };
       var actualResult = TestSubject.Solve(testOps);
       var expectedResult = 15;
+      Assert.Equal(expectedResult, actualResult);
+    }
+
+    [Fact]
+    public void BasePowerTest()
+    {
+      var testOps = new IOperation[]
+      {
+        new PowerOp(2, 3),
+      };
+      var actualResult = TestSubject.Solve(testOps);
+      var expectedResult = 8;
       Assert.Equal(expectedResult, actualResult);
     }
   }

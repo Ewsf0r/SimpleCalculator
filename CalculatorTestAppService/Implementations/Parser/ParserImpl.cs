@@ -64,12 +64,15 @@ namespace CalculatorTestAppService.Implementations.Parser
       {
         var c = expressionStr[i];
         // for numbers
-        if ((char.IsDigit(c) || c == '.' || (isFirst && c == '-')) && operationSubStr.Length != 0)
+        if (char.IsDigit(c) || c == '.' || (isFirst && c == '-'))
         {
-          if (!canParse(i, out var offset))
-            throw new ArgumentException("Can't parse one of the operations");
-          operationSubStr = "";
-          i += offset;
+          if (operationSubStr.Length != 0)
+          {
+            if (!canParse(i, out var offset))
+              throw new ArgumentException("Can't parse one of the operations");
+            operationSubStr = "";
+            i += offset;
+          }
         }
         // for operations
         else
