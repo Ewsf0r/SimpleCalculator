@@ -2,6 +2,7 @@ using CalculatorTestAppService.Implementations.Operations;
 using CalculatorTestAppService.Implementations.Solver;
 using CalculatorTestAppService.Interfaces;
 using CalculatorTestAppService.Interfaces.Operation;
+using System.Collections.Immutable;
 
 namespace CalculatorTestAppTests
 {
@@ -67,6 +68,35 @@ namespace CalculatorTestAppTests
       };
       var actualResult = TestSubject.Solve(testOps);
       var expectedResult = 8;
+      Assert.Equal(expectedResult, actualResult);
+    }
+
+    [Fact]
+    public void IncorrectBracketsPlacementTest()
+    {
+      var testOps = new IOperation[]
+      {
+        new BracketsOp(operations:new []{new AdditionOp(1,2)}),
+        new BracketsOp(operations:new []{new AdditionOp(3,4)}),
+      };
+      Assert.Throws<InvalidCastException>(()=> TestSubject.Solve(testOps));
+    }
+
+    [Fact]
+    public void CorrectAverageParsingTest()
+    {
+      var testData = new IOperation[]
+      {
+        new AverageOp(operations:  new []{
+          new []{ new BaseSingleValueOp(1) },
+          new []{ new BaseSingleValueOp(2) },
+          new []{ new BaseSingleValueOp(3) },
+        }),
+        new AdditionOp(null, 4),
+      }.ToImmutableList();
+      var actualResult = TestSubject.Solve(testData);
+      var expectedResult = 6;
+
       Assert.Equal(expectedResult, actualResult);
     }
   }

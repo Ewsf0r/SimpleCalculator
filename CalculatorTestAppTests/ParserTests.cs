@@ -161,10 +161,28 @@ namespace CalculatorTestAppTests
     [InlineData(")")]
     [InlineData("(1+2))")]
     [InlineData("((1+2)")]
+    [InlineData("(1+2)(3+4)", Skip = "true")]
     public void IncorrectBracketsPlacementTest(string testStr)
     {
       var actualResult = ((IParser)TestSubject).TryParse(testStr, out _);
       Assert.False(actualResult);
+    }
+
+    [Fact]
+    public void CorrectAverageParsingTest()
+    {
+      var testStr = "avg(1,2,3)+4";
+      var actualResult = TestSubject.Parse(testStr);
+      var expectedResult = new IOperation[]
+      {
+        new AverageOp(operations:  new []{
+          new []{ new BaseSingleValueOp(1) },
+          new []{ new BaseSingleValueOp(2) },
+          new []{ new BaseSingleValueOp(3) },
+        }),
+        new AdditionOp(null, 4),
+      }.ToImmutableList();
+      Assert.Equal(expectedResult, actualResult);
     }
   }
 }

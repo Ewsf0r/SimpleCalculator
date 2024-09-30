@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using CalculatorTestAppService.Implementations.Operations;
 using CalculatorTestAppService.Interfaces;
 using CalculatorTestAppService.Interfaces.Operation;
 
@@ -24,6 +25,7 @@ namespace CalculatorTestAppService.Implementations.Parser
 
     public ImmutableList<IOperation> Parse(string expressionStr)
     {
+      expressionStr = expressionStr.ToLowerInvariant();
       if (p_operations.Any(op => !op.CheckExpression(expressionStr)))
         throw new FormatException("Some of expressions operations are formated wrongly");
 
@@ -32,7 +34,7 @@ namespace CalculatorTestAppService.Implementations.Parser
 
       var operationSubStr = "";
 
-      bool canParse(int position, out int offset)
+      bool CanParse(int position, out int offset)
       {
         offset = 0;
         var parsable = false;
@@ -45,8 +47,13 @@ namespace CalculatorTestAppService.Implementations.Parser
             {
               if (operation is IArrayOperation arrayOperation && arrayOperation.IsParsingRequired)
               {
-                offset = arrayOperation.RawValue!.Length + 1;
-                operation = arrayOperation.WithParsedValue(Parse(arrayOperation!.RawValue));
+                var parsedOps = ImmutableList.CreateBuilder<ImmutableList<IOperation>>();
+                foreach (var value in arrayOperation.RawValue!)
+                {
+                  offset += value!.Length + 1;
+                  parsedOps.Add(Parse(value));
+                }
+                operation = arrayOperation.WithParsedOperations(parsedOps.ToImmutable());
               }
 
               resBuilder.Add(operation);
@@ -60,6 +67,7 @@ namespace CalculatorTestAppService.Implementations.Parser
         return parsable;
       }
 
+      var numberStr = "";
       for (var i = 0; i < expressionStr.Length; i++)
       {
         var c = expressionStr[i];
@@ -68,17 +76,18 @@ namespace CalculatorTestAppService.Implementations.Parser
         {
           if (operationSubStr.Length != 0)
           {
-            if (!canParse(i, out var offset))
+            if (!CanParse(i, out var offset))
               throw new ArgumentException("Can't parse one of the operations");
             operationSubStr = "";
             i += offset;
           }
+          numberStr += c;
         }
         // for operations
         else
         {
           operationSubStr += c;
-          if (canParse(i, out var offset))
+          if (CanParse(i, out var offset))
           {
             operationSubStr = "";
             i += offset;
@@ -86,6 +95,8 @@ namespace CalculatorTestAppService.Implementations.Parser
         }
         isFirst = false;
       }
+      if(resBuilder.Count==0 && !string.IsNullOrEmpty(numberStr))
+        resBuilder.Add(BaseSingleValueOp.Parse(numberStr));
       return resBuilder.ToImmutable();
     }
     ImmutableList<IOperation> IParser.Parse(string expressionStr) => Parse(expressionStr);

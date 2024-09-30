@@ -2,6 +2,6 @@
 {
   public interface ISingleValueOperation: IOperation
   {
-    double? Value { get; }
+    double Value { get; }
   }
 }

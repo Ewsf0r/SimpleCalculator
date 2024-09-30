@@ -141,5 +141,15 @@ namespace CalculatorTestAppTests
       var actualResult = TestSubject.Get(testStr);
       Assert.True(double.IsNaN(actualResult));
     }
+
+    [Theory]
+    [InlineData("avg(1,2,3)", 2d)]
+    [InlineData("avg(1,2,3)+4", 6d)]
+    [InlineData("4+avg(1,1+1,(1+1)+1)", 6d)]
+    public void AverageBaseTests(string testStr, double expectedResult)
+    {
+      var actualResult = TestSubject.Get(testStr);
+      Assert.Equal(actualResult, expectedResult);
+    }
   }
 }

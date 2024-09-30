@@ -11,8 +11,18 @@ namespace CalculatorTestAppService.Implementations.Solver
       var opsArr = ops.ToArray();
       if (opsArr.Length == 1)
       {
-        if (opsArr[0] is IArrayOperation arrayOperation && arrayOperation.IsSolvingRequired)
-          return Solve(arrayOperation.ParsedValue!);
+        if (opsArr[0] is IArrayOperation arrayOperation && arrayOperation.IsPreSolvingRequired)
+        {
+          var processedValuesBuilder = ImmutableList.CreateBuilder<double>();
+          foreach (var op in arrayOperation.ParsedOperations!)
+          {
+            processedValuesBuilder.Add(Solve(op));
+          }
+          return arrayOperation
+            .WithProcessedValues(processedValuesBuilder.ToImmutable())
+            .GetResult();
+        }
+
         return opsArr[0].GetResult();
       }
 
@@ -70,11 +80,22 @@ namespace CalculatorTestAppService.Implementations.Solver
 
     private double SolveSubroutine(List<IOperation> ops)
     {
+      var result = 0d;
       if (ops.Count == 1)
       {
-        if (ops[0] is IArrayOperation arrayOperation && arrayOperation.IsSolvingRequired)
-          return Solve(arrayOperation.ParsedValue!);
-        return ops[0].GetResult();
+        if (ops[0] is IArrayOperation arrayOperation && arrayOperation.IsPreSolvingRequired)
+        {
+          var processedValuesBuilder = ImmutableList.CreateBuilder<double>();
+          foreach (var op in arrayOperation.ParsedOperations!)
+            processedValuesBuilder.Add(Solve(op));
+
+          result = arrayOperation
+            .WithProcessedValues(processedValuesBuilder.ToImmutable())
+            .GetResult();
+          return result;
+        }
+        result = ops[0].GetResult();
+        return result;
       }
 
       for (var i = 0; i < ops.Count - 1; i++)
@@ -85,7 +106,7 @@ namespace CalculatorTestAppService.Implementations.Solver
         ops[i + 1] = nextOp;
       }
 
-      var result = ops[^1].GetResult();
+      result = ops[^1].GetResult();
       return result;
     }
   }

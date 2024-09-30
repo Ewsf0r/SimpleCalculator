@@ -3,7 +3,7 @@ using System.Globalization;
 
 namespace CalculatorTestAppService.Implementations.Operations
 {
-    public class BaseTwoElementsOperation(double? leftOperand, double? rightOperand)
+  public class BaseTwoElementsOperation(double? leftOperand, double? rightOperand)
     : ITwoElementsOperation, IEquatable<BaseTwoElementsOperation>
   {
     public double? LeftOp { get; } = leftOperand;
@@ -29,6 +29,7 @@ namespace CalculatorTestAppService.Implementations.Operations
         var c = expressionStr[leftOperandStartPosition];
         if (!char.IsDigit(c) && c != '.') break;
       }
+
       leftOperandStartPosition++;
 
       double? nullableLeftOp = null;
@@ -43,11 +44,14 @@ namespace CalculatorTestAppService.Implementations.Operations
         nullableLeftOp = -nullableLeftOp;
 
       int rightOperandFinishPosition;
-      for (rightOperandFinishPosition = opPosition + 1; rightOperandFinishPosition < expressionStr.Length; rightOperandFinishPosition++)
+      for (rightOperandFinishPosition = opPosition + 1;
+           rightOperandFinishPosition < expressionStr.Length;
+           rightOperandFinishPosition++)
       {
         var c = expressionStr[rightOperandFinishPosition];
         if (!char.IsDigit(c) && c != '.') break;
       }
+
       rightOperandFinishPosition--;
 
       double? nullableRightOp = null;
@@ -60,7 +64,7 @@ namespace CalculatorTestAppService.Implementations.Operations
         nullableRightOp = rightOperand;
       return new BaseTwoElementsOperation(nullableLeftOp, nullableRightOp);
     }
-    
+
     public virtual IOperation WithLeft(double left) => new BaseTwoElementsOperation(left, RightOp);
     public virtual IOperation WithRight(double right) => new BaseTwoElementsOperation(LeftOp, right);
 
